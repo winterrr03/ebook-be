@@ -2,26 +2,23 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { BookModule } from './modules/book/book.module';
+import typeorm from './config/typeorm.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST'),
-        port: +configService.get('DATABASE_PORT') || 5432,
-        username: configService.get('DATABASE_USERNAME'),
-        password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
-        entities: [],
-        synchronize: false,
-        migrations: ['src/migrations/*.ts'],
-      }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [typeorm],
     }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService): TypeOrmModuleOptions => {
+        return configService.get<TypeOrmModuleOptions>('typeorm')!;
+      },
+    }),
+    BookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
