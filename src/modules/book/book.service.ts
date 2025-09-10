@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Book } from 'src/modules/book/domain/book.domain';
+import { Uuid } from 'src/common/type';
+import { BookCreate } from 'src/modules/book/domain/book-create';
+import { BookUpdate } from 'src/modules/book/domain/book-update';
+import { Book } from 'src/modules/book/domain/book';
 import { BookEntity } from 'src/modules/book/entity/book.entity';
-import { BookMapper } from 'src/modules/book/mapper/book.mapper';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -13,36 +15,36 @@ export class BookService {
   ) {}
 
   async findAll(): Promise<Book[]> {
-    return BookMapper.toDomainsFromEntities(await this.bookRepository.find());
+    return Book.fromEntities(await this.bookRepository.find());
   }
 
-  async findOne(id: string): Promise<Book> {
-    return BookMapper.toDomainFromEntity(await this.findOneOrThrow(id));
+  async findOne(id: Uuid): Promise<Book> {
+    return Book.fromEntity(await this.findOneOrThrow(id));
   }
 
-  async create(domain: Book): Promise<Book> {
-    return BookMapper.toDomainFromEntity(
-      await this.bookRepository.save(BookMapper.toEntityFromDomain(domain)),
+  async create(bookCreate: BookCreate): Promise<Book> {
+    return Book.fromEntity(
+      await this.bookRepository.save(BookCreate.toEntity(bookCreate)),
     );
   }
 
-  async update(id: string, domain: Book): Promise<Book> {
-    await this.bookRepository.update(
-      { id },
-      BookMapper.toEntityFromDomain(domain),
+  async update(id: Uuid, bookUpdate: BookUpdate): Promise<Book> {
+    return Book.fromEntity(
+      await this.bookRepository.save({
+        ...(await this.findOneOrThrow(id)),
+        ...BookUpdate.toEntity(bookUpdate),
+      }),
     );
-
-    return this.findOne(id);
   }
 
-  async remove(id: string): Promise<void> {
-    await this.findOneOrThrow(id);
-
-    await this.bookRepository.delete(id);
+  async remove(id: Uuid): Promise<void> {
+    await this.bookRepository.remove(await this.findOneOrThrow(id));
   }
 
-  private async findOneOrThrow(id: string): Promise<BookEntity> {
-    const book = await this.bookRepository.findOneBy({ id });
+  private async findOneOrThrow(id: Uuid): Promise<BookEntity> {
+    const book = await this.bookRepository.findOneBy({
+      id,
+    });
 
     if (!book) {
       throw new NotFoundException(`Book with id ${id} not found`);

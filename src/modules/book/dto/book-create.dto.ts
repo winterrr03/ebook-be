@@ -1,14 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsUrl, IsDateString } from 'class-validator';
+import { IsString, IsOptional, IsUrl } from 'class-validator';
+import { BookCreate } from 'src/modules/book/domain/book-create';
 
-export class CreateBookDto {
+export class BookCreateDto {
   @ApiProperty({ example: 'NestJS in Action' })
   @IsString({ message: 'Title must be a string' })
-  title: string;
+  readonly title: string;
 
   @ApiProperty({ example: 'https://example.com/book.pdf' })
   @IsUrl({}, { message: 'URL must be a valid URL' })
-  url: string;
+  readonly url: string;
 
   @ApiProperty({ example: 'John Doe', required: false })
   @IsOptional()
@@ -22,9 +23,13 @@ export class CreateBookDto {
 
   @ApiProperty({ example: '2025-01-01T00:00:00Z', required: false })
   @IsOptional()
-  @IsDateString(
-    {},
-    { message: 'PublishedAt must be a valid ISO 8601 date string' },
-  )
-  readonly publishedAt?: string;
+  readonly publishedAt?: Date;
+
+  static toBookCreate = (bookCreateDto: BookCreateDto): BookCreate => ({
+    title: bookCreateDto.title,
+    url: bookCreateDto.url,
+    author: bookCreateDto.author,
+    description: bookCreateDto.description,
+    publishedAt: bookCreateDto.publishedAt,
+  });
 }

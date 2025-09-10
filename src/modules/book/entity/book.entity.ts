@@ -1,3 +1,4 @@
+import type { Uuid } from 'src/common/type';
 import {
   Entity,
   Column,
@@ -9,7 +10,7 @@ import {
 @Entity('books')
 export class BookEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: Uuid;
 
   @Column()
   title: string;
@@ -17,14 +18,14 @@ export class BookEntity {
   @Column()
   url: string;
 
-  @Column({ nullable: true })
-  author?: string;
+  @Column({ nullable: true, type: 'varchar' })
+  author: string | null;
 
-  @Column({ nullable: true })
-  description?: string;
+  @Column({ nullable: true, type: 'text' })
+  description: string | null;
 
   @Column({ nullable: true, type: 'timestamp' })
-  publishedAt?: Date;
+  publishedAt: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;
