@@ -27,11 +27,13 @@ export class BookUpdateDto {
   @IsOptional()
   readonly publishedAt?: Date;
 
-  static toBookUpdate = (bookUpdateDto: BookUpdateDto): BookUpdate => ({
-    title: bookUpdateDto.title,
-    url: bookUpdateDto.url,
-    author: bookUpdateDto.author,
-    description: bookUpdateDto.description,
-    publishedAt: bookUpdateDto.publishedAt,
-  });
+  static toBookUpdate(bookUpdateDto: BookUpdateDto): BookUpdate {
+    return {
+      title: bookUpdateDto.title,
+      url: bookUpdateDto.url,
+      author: bookUpdateDto.author,
+      description: bookUpdateDto.description,
+      publishedAt: bookUpdateDto.publishedAt,
+    };
+  }
 }

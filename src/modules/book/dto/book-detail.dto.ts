@@ -12,29 +12,31 @@ export class BookDetailDto {
   @ApiProperty({ example: 'https://example.com/book.pdf' })
   readonly url: string;
 
-  @ApiProperty({ example: 'John Doe', required: false })
-  readonly author?: string;
+  @ApiProperty({ example: 'John Doe' })
+  readonly author: string | null;
 
-  @ApiProperty({ example: 'A comprehensive guide to NestJS', required: false })
-  readonly description?: string;
+  @ApiProperty({ example: 'A comprehensive guide to NestJS' })
+  readonly description: string | null;
 
-  @ApiProperty({ example: '2025-01-01T00:00:00Z', required: false })
-  readonly publishedAt?: Date;
+  @ApiProperty({ example: '2025-01-01T00:00:00Z' })
+  readonly publishedAt: Date | null;
 
-  @ApiProperty({ example: '2025-08-01T12:00:00Z', required: false })
-  readonly createdAt?: Date;
+  @ApiProperty({ example: '2025-08-01T12:00:00Z' })
+  readonly createdAt: Date | null;
 
-  @ApiProperty({ example: '2025-08-05T12:00:00Z', required: false })
-  readonly updatedAt?: Date;
+  @ApiProperty({ example: '2025-08-05T12:00:00Z' })
+  readonly updatedAt: Date | null;
 
-  static fromBook = (book: Book): BookDetailDto => ({
-    id: book.id,
-    title: book.title,
-    url: book.url,
-    author: book.author ?? undefined,
-    description: book.description ?? undefined,
-    publishedAt: book.publishedAt ?? undefined,
-    createdAt: book.createdAt,
-    updatedAt: book.updatedAt,
-  });
+  static fromBook(book: Book): BookDetailDto {
+    return {
+      id: book.id,
+      title: book.title,
+      url: book.url,
+      author: book.author,
+      description: book.description,
+      publishedAt: book.publishedAt,
+      createdAt: book.createdAt,
+      updatedAt: book.updatedAt,
+    };
+  }
 }

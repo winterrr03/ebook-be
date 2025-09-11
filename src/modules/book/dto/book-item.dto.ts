@@ -9,19 +9,22 @@ export class BookItemDto {
   @ApiProperty({ example: 'NestJS in Action' })
   readonly title: string;
 
-  @ApiProperty({ example: 'John Doe', required: false })
-  readonly author?: string;
+  @ApiProperty({ example: 'John Doe' })
+  readonly author: string | null;
 
-  @ApiProperty({ example: '2025-01-01T00:00:00Z', required: false })
-  readonly publishedAt?: Date;
+  @ApiProperty({ example: '2025-01-01T00:00:00Z' })
+  readonly publishedAt: Date | null;
 
-  static fromBook = (book: Book): BookItemDto => ({
-    id: book.id,
-    title: book.title,
-    author: book.author ?? undefined,
-    publishedAt: book.publishedAt ?? undefined,
-  });
+  static fromBook(book: Book): BookItemDto {
+    return {
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      publishedAt: book.publishedAt,
+    };
+  }
 
-  static fromBooks = (books: Book[]): BookItemDto[] =>
-    books.map(BookItemDto.fromBook);
+  static fromBooks(books: Book[]): BookItemDto[] {
+    return books.map((e) => this.fromBook(e));
+  }
 }

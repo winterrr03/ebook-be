@@ -18,17 +18,20 @@ export class Book {
 
   readonly updatedAt: Date;
 
-  static fromEntity = (bookEntity: BookEntity): Book => ({
-    id: bookEntity.id,
-    title: bookEntity.title,
-    url: bookEntity.url,
-    author: bookEntity.author,
-    description: bookEntity.description,
-    publishedAt: bookEntity.publishedAt,
-    createdAt: bookEntity.createdAt,
-    updatedAt: bookEntity.updatedAt,
-  });
+  static fromEntity(bookEntity: BookEntity): Book {
+    return {
+      id: bookEntity.id,
+      title: bookEntity.title,
+      url: bookEntity.url,
+      author: bookEntity.author,
+      description: bookEntity.description,
+      publishedAt: bookEntity.publishedAt,
+      createdAt: bookEntity.createdAt,
+      updatedAt: bookEntity.updatedAt,
+    };
+  }
 
-  static fromEntities = (bookEntities: BookEntity[]): Book[] =>
-    bookEntities.map(Book.fromEntity);
+  static fromEntities(bookEntities: BookEntity[]): Book[] {
+    return bookEntities.map((e) => this.fromEntity(e));
+  }
 }

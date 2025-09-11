@@ -25,11 +25,13 @@ export class BookCreateDto {
   @IsOptional()
   readonly publishedAt?: Date;
 
-  static toBookCreate = (bookCreateDto: BookCreateDto): BookCreate => ({
-    title: bookCreateDto.title,
-    url: bookCreateDto.url,
-    author: bookCreateDto.author,
-    description: bookCreateDto.description,
-    publishedAt: bookCreateDto.publishedAt,
-  });
+  static toBookCreate(bookCreateDto: BookCreateDto): BookCreate {
+    return {
+      title: bookCreateDto.title,
+      url: bookCreateDto.url,
+      author: bookCreateDto.author,
+      description: bookCreateDto.description,
+      publishedAt: bookCreateDto.publishedAt,
+    };
+  }
 }
