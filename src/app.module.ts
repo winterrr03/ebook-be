@@ -4,7 +4,9 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { BookModule } from './modules/book/book.module';
+import { BookContentModule } from './modules/book-content/book-content.module';
 import typeorm from './config/typeorm.config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -18,7 +20,9 @@ import typeorm from './config/typeorm.config';
         return configService.get<TypeOrmModuleOptions>('typeorm')!;
       },
     }),
+    ScheduleModule.forRoot(),
     BookModule,
+    BookContentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

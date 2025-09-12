@@ -6,16 +6,22 @@ import { BookUpdate } from 'src/modules/book/domain/book-update';
 import { Book } from 'src/modules/book/domain/book';
 import { BookEntity } from 'src/modules/book/entity/book.entity';
 import { Repository } from 'typeorm';
+import { BookContentService } from 'src/modules/book-content/book-content.service';
 
 @Injectable()
 export class BookService {
   constructor(
     @InjectRepository(BookEntity)
     private readonly bookRepository: Repository<BookEntity>,
+    private readonly bookContentService: BookContentService,
   ) {}
 
   async findAll(): Promise<Book[]> {
-    return Book.fromEntities(await this.bookRepository.find());
+    return Book.fromEntities(
+      await this.bookRepository.find({
+        relations: ['content'],
+      }),
+    );
   }
 
   async findOne(id: Uuid): Promise<Book> {
@@ -23,9 +29,13 @@ export class BookService {
   }
 
   async create(bookCreate: BookCreate): Promise<Book> {
-    return Book.fromEntity(
-      await this.bookRepository.save(BookCreate.toEntity(bookCreate)),
+    const bookEntity = await this.bookRepository.save(
+      BookCreate.toEntity(bookCreate),
     );
+
+    await this.bookContentService.createEmpty(bookEntity.id, bookEntity.url);
+
+    return Book.fromEntity(bookEntity);
   }
 
   async update(id: Uuid, bookUpdate: BookUpdate): Promise<Book> {
@@ -41,9 +51,21 @@ export class BookService {
     await this.bookRepository.remove(await this.findOneOrThrow(id));
   }
 
+  async searchByTitleOrContent(keyword: string): Promise<Book[]> {
+    const qb = this.bookRepository
+      .createQueryBuilder('book')
+      .leftJoinAndSelect('book.content', 'content')
+      .where('book.title ILIKE :keyword OR content.content ILIKE :keyword', {
+        keyword: `%${keyword}%`,
+      });
+
+    return Book.fromEntities(await qb.getMany());
+  }
+
   private async findOneOrThrow(id: Uuid): Promise<BookEntity> {
-    const book = await this.bookRepository.findOneBy({
-      id,
+    const book = await this.bookRepository.findOne({
+      where: { id },
+      relations: ['content'],
     });
 
     if (!book) {
