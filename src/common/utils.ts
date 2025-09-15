@@ -1,6 +1,5 @@
-import * as fs from 'fs';
 import * as fsp from 'fs/promises';
-import * as https from 'https';
+import { DownloaderHelper } from 'node-downloader-helper';
 import path from 'path';
 import { TEMP_FILES_DIR } from 'src/constants/path';
 import { CONTROL_CHAR_REGEX } from 'src/constants/regex';
@@ -11,36 +10,20 @@ async function ensureTmpDir(): Promise<string> {
 }
 
 export async function downloadTmpFile(url: string): Promise<string> {
-  const filePath = path.join(
-    await ensureTmpDir(),
-    `${Date.now()}${path.extname(new URL(url).pathname)}`,
-  );
+  const dir = await ensureTmpDir();
+  const ext = path.extname(new URL(url).pathname) || '';
+  const fileName = `${Date.now()}${ext}`;
+  const filePath = path.join(dir, fileName);
 
-  const file = fs.createWriteStream(filePath);
+  const dl = new DownloaderHelper(url, dir, {
+    fileName,
+    override: true,
+  });
 
   return new Promise<string>((resolve, reject) => {
-    https
-      .get(url, (response) => {
-        if (response.statusCode !== 200) {
-          file.close();
-          fs.unlink(filePath, () => {});
-          return reject(
-            new Error(`Failed to download: ${response.statusCode}`),
-          );
-        }
-
-        response.pipe(file);
-
-        file.on('finish', () => {
-          file.close();
-          resolve(filePath);
-        });
-      })
-      .on('error', (err) => {
-        file.close();
-        fs.unlink(filePath, () => {});
-        reject(err);
-      });
+    dl.on('end', () => resolve(filePath));
+    dl.on('error', (err) => reject(toError(err)));
+    dl.start().catch((err) => reject(toError(err)));
   });
 }
 
@@ -60,4 +43,8 @@ export function sanitizeText(input: string): string {
   if (!input) return input;
 
   return input.replace(CONTROL_CHAR_REGEX, '');
+}
+
+function toError(err: unknown): Error {
+  return err instanceof Error ? err : new Error(JSON.stringify(err));
 }

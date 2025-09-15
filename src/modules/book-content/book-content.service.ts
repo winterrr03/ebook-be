@@ -17,14 +17,6 @@ export class BookContentService {
     private readonly bookContentRepository: Repository<BookContentEntity>,
   ) {}
 
-  async findAll(): Promise<BookContent[]> {
-    return BookContent.fromEntities(await this.bookContentRepository.find());
-  }
-
-  async findByBookId(bookId: Uuid): Promise<BookContent> {
-    return BookContent.fromEntity(await this.findOneOrThrow(bookId));
-  }
-
   async createEmpty(bookId: Uuid, url: string): Promise<BookContent> {
     return BookContent.fromEntity(
       await this.bookContentRepository.save(
@@ -36,7 +28,7 @@ export class BookContentService {
   async updateContent(bookId: Uuid, content: string): Promise<BookContent> {
     return BookContent.fromEntity(
       await this.bookContentRepository.save({
-        ...(await this.findByBookId(bookId)),
+        ...(await this.findOneOrThrow(bookId)),
         content,
       }),
     );
@@ -55,35 +47,34 @@ export class BookContentService {
     const limit = pLimit(3);
 
     const tasks = bookContents.map((bc) =>
-      limit(async () => {
-        let filePath: string | undefined;
-
-        try {
-          filePath = await downloadTmpFile(bc.url);
-
-          const text: string = await parseOfficeAsync(filePath, {
-            newlineDelimiter: '\n',
-          });
-
-          await this.updateContent(bc.bookId, sanitizeText(text));
-
-          this.logger.log(`Extracted content for book ${bc.bookId}`);
-        } catch (err) {
-          this.logger.error(
-            `Failed to extract content for book ${bc.bookId}`,
-            err,
-          );
-        } finally {
-          if (filePath) {
-            await removeFile(filePath).catch((e) =>
-              this.logger.error(`Failed to clean temp file: ${filePath}`, e),
-            );
-          }
-        }
-      }),
+      limit(() => this.extractBookContent(bc)),
     );
 
     await Promise.all(tasks);
+  }
+
+  private async extractBookContent(bc: BookContentEntity): Promise<void> {
+    let filePath: string | undefined;
+
+    try {
+      filePath = await downloadTmpFile(bc.url);
+
+      const text: string = await parseOfficeAsync(filePath, {
+        newlineDelimiter: '\n',
+      });
+
+      await this.updateContent(bc.bookId, sanitizeText(text));
+
+      this.logger.log(`Extracted content for book ${bc.bookId}`);
+    } catch (err) {
+      this.logger.error(`Failed to extract content for book ${bc.bookId}`, err);
+    } finally {
+      if (filePath) {
+        await removeFile(filePath).catch((e) =>
+          this.logger.error(`Failed to clean temp file: ${filePath}`, e),
+        );
+      }
+    }
   }
 
   private async findOneOrThrow(bookId: Uuid): Promise<BookContentEntity> {
