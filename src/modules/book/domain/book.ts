@@ -8,6 +8,8 @@ export class Book {
 
   readonly url: string;
 
+  readonly content: string | null;
+
   readonly author: string | null;
 
   readonly description: string | null;
@@ -23,6 +25,7 @@ export class Book {
       id: bookEntity.id,
       title: bookEntity.title,
       url: bookEntity.url,
+      content: bookEntity.content?.content ?? null,
       author: bookEntity.author,
       description: bookEntity.description,
       publishedAt: bookEntity.publishedAt,

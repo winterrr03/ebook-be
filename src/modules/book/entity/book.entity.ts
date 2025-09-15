@@ -1,10 +1,12 @@
 import type { Uuid } from 'src/common/type';
+import { BookContentEntity } from 'src/modules/book-content/entity/book-content.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
 
 @Entity('books')
@@ -17,6 +19,13 @@ export class BookEntity {
 
   @Column()
   url: string;
+
+  @OneToOne(() => BookContentEntity, (content) => content.book, {
+    cascade: true,
+    eager: false,
+    nullable: true,
+  })
+  content: BookContentEntity | null;
 
   @Column({ nullable: true, type: 'varchar' })
   author: string | null;

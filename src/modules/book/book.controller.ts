@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { BookItemDto } from 'src/modules/book/dto/book-item.dto';
@@ -21,6 +22,13 @@ export class BookController {
   @Get()
   async findAll(): Promise<BookItemDto[]> {
     return BookItemDto.fromBooks(await this.bookService.findAll());
+  }
+
+  @Get('search')
+  async search(@Query('keyword') keyword: string): Promise<BookItemDto[]> {
+    return BookItemDto.fromBooks(
+      await this.bookService.searchByTitleOrContent(keyword),
+    );
   }
 
   @Get(':id')

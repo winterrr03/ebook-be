@@ -12,6 +12,11 @@ export class BookDetailDto {
   @ApiProperty({ example: 'https://example.com/book.pdf' })
   readonly url: string;
 
+  @ApiProperty({
+    example: 'This is the introduction chapter of the book...',
+  })
+  readonly content: string | null;
+
   @ApiProperty({ example: 'John Doe' })
   readonly author: string | null;
 
@@ -32,6 +37,7 @@ export class BookDetailDto {
       id: book.id,
       title: book.title,
       url: book.url,
+      content: book.content,
       author: book.author,
       description: book.description,
       publishedAt: book.publishedAt,
