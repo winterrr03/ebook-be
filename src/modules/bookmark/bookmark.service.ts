@@ -16,6 +16,10 @@ export class BookmarkService {
     private readonly bookRepository: Repository<BookEntity>,
   ) {}
 
+  async findAll(): Promise<Bookmark[]> {
+    return Bookmark.fromEntities(await this.bookmarkRepository.find());
+  }
+
   async create(bookmarkCreate: BookmarkCreate): Promise<Bookmark> {
     await this.checkBookExistsOrThrow(bookmarkCreate.bookId);
 

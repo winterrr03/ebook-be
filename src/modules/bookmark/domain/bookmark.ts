@@ -21,4 +21,8 @@ export class Bookmark {
       updatedAt: bookmarkEntity.updatedAt,
     };
   }
+
+  static fromEntities(bookmarkEntities: BookmarkEntity[]): Bookmark[] {
+    return bookmarkEntities.map((e) => this.fromEntity(e));
+  }
 }
