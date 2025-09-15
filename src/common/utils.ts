@@ -3,6 +3,7 @@ import * as fsp from 'fs/promises';
 import * as https from 'https';
 import path from 'path';
 import { TEMP_FILES_DIR } from 'src/constants/path';
+import { CONTROL_CHAR_REGEX } from 'src/constants/regex';
 
 async function ensureTmpDir(): Promise<string> {
   await fsp.mkdir(TEMP_FILES_DIR, { recursive: true });
@@ -53,4 +54,10 @@ export async function removeFile(filePath: string): Promise<void> {
       console.error(`Failed to remove file ${filePath}: Unknown error`);
     }
   }
+}
+
+export function sanitizeText(input: string): string {
+  if (!input) return input;
+
+  return input.replace(CONTROL_CHAR_REGEX, '');
 }

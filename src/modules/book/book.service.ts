@@ -17,11 +17,7 @@ export class BookService {
   ) {}
 
   async findAll(): Promise<Book[]> {
-    return Book.fromEntities(
-      await this.bookRepository.find({
-        relations: ['content'],
-      }),
-    );
+    return Book.fromEntities(await this.bookRepository.find());
   }
 
   async findOne(id: Uuid): Promise<Book> {
@@ -54,7 +50,7 @@ export class BookService {
   async searchByTitleOrContent(keyword: string): Promise<Book[]> {
     const qb = this.bookRepository
       .createQueryBuilder('book')
-      .leftJoinAndSelect('book.content', 'content')
+      .leftJoin('book.content', 'content')
       .where('book.title ILIKE :keyword OR content.content ILIKE :keyword', {
         keyword: `%${keyword}%`,
       });
@@ -65,7 +61,9 @@ export class BookService {
   private async findOneOrThrow(id: Uuid): Promise<BookEntity> {
     const book = await this.bookRepository.findOne({
       where: { id },
-      relations: ['content'],
+      relations: {
+        content: true,
+      },
     });
 
     if (!book) {
