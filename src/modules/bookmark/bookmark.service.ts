@@ -12,7 +12,6 @@ export class BookmarkService {
   constructor(
     @InjectRepository(BookmarkEntity)
     private readonly bookmarkRepository: Repository<BookmarkEntity>,
-
     @InjectRepository(BookEntity)
     private readonly bookRepository: Repository<BookEntity>,
   ) {}
@@ -42,9 +41,9 @@ export class BookmarkService {
   }
 
   private async checkBookExistsOrThrow(bookId: Uuid): Promise<void> {
-    const book = await this.bookRepository.findOneBy({ id: bookId });
+    const isExist = await this.bookRepository.existsBy({ id: bookId });
 
-    if (!book) {
+    if (!isExist) {
       throw new NotFoundException(`Book with id ${bookId} not found`);
     }
   }
