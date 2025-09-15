@@ -1,5 +1,6 @@
 import type { Uuid } from 'src/common/type';
 import { BookContentEntity } from 'src/modules/book-content/entity/book-content.entity';
+import { BookmarkEntity } from 'src/modules/bookmark/entity/bookmark.entity';
 import {
   Entity,
   Column,
@@ -7,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('books')
@@ -26,6 +28,11 @@ export class BookEntity {
     nullable: true,
   })
   content: BookContentEntity | null;
+
+  @OneToMany(() => BookmarkEntity, (bookmark) => bookmark.book, {
+    cascade: true,
+  })
+  bookmarks: BookmarkEntity[];
 
   @Column({ nullable: true, type: 'varchar' })
   author: string | null;
