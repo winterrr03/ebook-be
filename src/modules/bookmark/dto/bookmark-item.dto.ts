@@ -19,4 +19,8 @@ export class BookmarkItemDto {
       page: bookmark.page,
     };
   }
+
+  static fromBookmarks(bookmarks: Bookmark[]): BookmarkItemDto[] {
+    return bookmarks.map((e) => this.fromBookmark(e));
+  }
 }
