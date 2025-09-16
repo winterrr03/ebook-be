@@ -8,6 +8,7 @@ import { BookContentModule } from './modules/book-content/book-content.module';
 import typeorm from './config/typeorm.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BookmarkModule } from './modules/bookmark/bookmark.module';
+import { BookFavoriteModule } from './modules/book-favorite/book-favorite.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { BookmarkModule } from './modules/bookmark/bookmark.module';
     BookModule,
     BookContentModule,
     BookmarkModule,
+    BookFavoriteModule,
   ],
   controllers: [AppController],
   providers: [AppService],
