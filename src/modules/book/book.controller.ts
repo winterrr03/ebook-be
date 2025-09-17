@@ -31,6 +31,11 @@ export class BookController {
     );
   }
 
+  @Get('favorites')
+  async findFavorites(): Promise<BookItemDto[]> {
+    return BookItemDto.fromBooks(await this.bookService.findFavorites());
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: Uuid): Promise<BookDetailDto> {
     return BookDetailDto.fromBook(await this.bookService.findOne(id));
