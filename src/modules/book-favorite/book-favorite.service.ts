@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Uuid } from 'src/common/type';
-import { BookFavoriteCreate } from 'src/modules/book-favorite/domain/book-favorite-create';
 import { BookFavoriteEntity } from 'src/modules/book-favorite/entity/book-favorite.entity';
 import { BookEntity } from 'src/modules/book/entity/book.entity';
 import { Repository } from 'typeorm';
@@ -15,16 +14,11 @@ export class BookFavoriteService {
     private readonly bookRepository: Repository<BookEntity>,
   ) {}
 
-  async create(
-    bookId: Uuid,
-    bookFavoriteCreate: BookFavoriteCreate,
-  ): Promise<void> {
+  async create(bookId: Uuid): Promise<void> {
     await this.checkBookExistsOrThrow(bookId);
 
     await this.bookFavoriteRepository.save(
-      this.bookFavoriteRepository.create(
-        BookFavoriteCreate.toEntity(bookFavoriteCreate),
-      ),
+      this.bookFavoriteRepository.create({ bookId }),
     );
   }
 
