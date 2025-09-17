@@ -4,7 +4,6 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  JoinColumn,
   CreateDateColumn,
   ManyToOne,
 } from 'typeorm';
@@ -20,7 +19,6 @@ export class BookFavoriteEntity {
   @ManyToOne(() => BookEntity, (book) => book.favorites, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'bookId' })
   book: BookEntity;
 
   @CreateDateColumn()

@@ -58,6 +58,15 @@ export class BookService {
     return Book.fromEntities(await qb.getMany());
   }
 
+  async findFavorites(): Promise<Book[]> {
+    return Book.fromEntities(
+      await this.bookRepository
+        .createQueryBuilder('book')
+        .innerJoin('book.favorites', 'favorite')
+        .getMany(),
+    );
+  }
+
   private async findOneOrThrow(id: Uuid): Promise<BookEntity> {
     const book = await this.bookRepository.findOne({
       where: { id },

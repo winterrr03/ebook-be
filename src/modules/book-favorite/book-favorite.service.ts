@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Uuid } from 'src/common/type';
-import { BookFavorite } from 'src/modules/book-favorite/domain/book-favorite';
 import { BookFavoriteCreate } from 'src/modules/book-favorite/domain/book-favorite-create';
 import { BookFavoriteEntity } from 'src/modules/book-favorite/entity/book-favorite.entity';
 import { BookEntity } from 'src/modules/book/entity/book.entity';
@@ -16,44 +15,29 @@ export class BookFavoriteService {
     private readonly bookRepository: Repository<BookEntity>,
   ) {}
 
-  async findAll(): Promise<BookFavorite[]> {
-    return BookFavorite.fromEntities(
-      await this.bookFavoriteRepository.find({
-        relations: {
-          book: true,
-        },
-      }),
-    );
-  }
-
-  async create(bookFavoriteCreate: BookFavoriteCreate): Promise<BookFavorite> {
+  async create(bookFavoriteCreate: BookFavoriteCreate): Promise<void> {
     await this.checkBookExistsOrThrow(bookFavoriteCreate.bookId);
 
-    const saved = await this.bookFavoriteRepository.save(
+    await this.bookFavoriteRepository.save(
       BookFavoriteCreate.toEntity(bookFavoriteCreate),
     );
+  }
 
-    return BookFavorite.fromEntity(
-      await this.bookFavoriteRepository.findOneOrFail({
-        where: {
-          id: saved.id,
-        },
-        relations: {
-          book: true,
-        },
-      }),
+  async removeByBookId(bookId: Uuid): Promise<void> {
+    await this.bookFavoriteRepository.remove(
+      await this.findOneByBookIdOrThrow(bookId),
     );
   }
 
-  async remove(id: Uuid): Promise<void> {
-    await this.bookFavoriteRepository.remove(await this.findOneOrThrow(id));
-  }
-
-  private async findOneOrThrow(id: Uuid): Promise<BookFavoriteEntity> {
-    const bookFavorite = await this.bookFavoriteRepository.findOneBy({ id });
+  private async findOneByBookIdOrThrow(
+    bookId: Uuid,
+  ): Promise<BookFavoriteEntity> {
+    const bookFavorite = await this.bookFavoriteRepository.findOneBy({
+      bookId,
+    });
 
     if (!bookFavorite) {
-      throw new NotFoundException(`BookFavorite with id ${id} not found`);
+      throw new NotFoundException(`Favorite for bookId ${bookId} not found`);
     }
 
     return bookFavorite;

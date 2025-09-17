@@ -1,9 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateBookFavoritesTable1758076630461
+export class CreateBookFavoritesTable1758081737103
   implements MigrationInterface
 {
-  name = 'CreateBookFavoritesTable1758076630461';
+  name = 'CreateBookFavoritesTable1758081737103';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
