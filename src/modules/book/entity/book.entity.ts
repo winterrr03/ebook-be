@@ -30,12 +30,10 @@ export class BookEntity {
   })
   content: BookContentEntity | null;
 
-  @OneToOne(() => BookFavoriteEntity, (favorite) => favorite.book, {
+  @OneToMany(() => BookFavoriteEntity, (favorite) => favorite.book, {
     cascade: true,
-    eager: false,
-    nullable: true,
   })
-  favorite: BookFavoriteEntity | null;
+  favorites: BookFavoriteEntity[];
 
   @OneToMany(() => BookmarkEntity, (bookmark) => bookmark.book, {
     cascade: true,

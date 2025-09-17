@@ -17,16 +17,31 @@ export class BookFavoriteService {
   ) {}
 
   async findAll(): Promise<BookFavorite[]> {
-    return BookFavorite.fromEntities(await this.bookFavoriteRepository.find());
+    return BookFavorite.fromEntities(
+      await this.bookFavoriteRepository.find({
+        relations: {
+          book: true,
+        },
+      }),
+    );
   }
 
   async create(bookFavoriteCreate: BookFavoriteCreate): Promise<BookFavorite> {
     await this.checkBookExistsOrThrow(bookFavoriteCreate.bookId);
 
+    const saved = await this.bookFavoriteRepository.save(
+      BookFavoriteCreate.toEntity(bookFavoriteCreate),
+    );
+
     return BookFavorite.fromEntity(
-      await this.bookFavoriteRepository.save(
-        BookFavoriteCreate.toEntity(bookFavoriteCreate),
-      ),
+      await this.bookFavoriteRepository.findOneOrFail({
+        where: {
+          id: saved.id,
+        },
+        relations: {
+          book: true,
+        },
+      }),
     );
   }
 

@@ -4,9 +4,9 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
   JoinColumn,
   CreateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity('book_favorites')
@@ -17,7 +17,9 @@ export class BookFavoriteEntity {
   @Column()
   bookId: Uuid;
 
-  @OneToOne(() => BookEntity, (book) => book.favorite, { onDelete: 'CASCADE' })
+  @ManyToOne(() => BookEntity, (book) => book.favorites, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'bookId' })
   book: BookEntity;
 
