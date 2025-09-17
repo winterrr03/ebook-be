@@ -15,11 +15,16 @@ export class BookFavoriteService {
     private readonly bookRepository: Repository<BookEntity>,
   ) {}
 
-  async create(bookFavoriteCreate: BookFavoriteCreate): Promise<void> {
-    await this.checkBookExistsOrThrow(bookFavoriteCreate.bookId);
+  async create(
+    bookId: Uuid,
+    bookFavoriteCreate: BookFavoriteCreate,
+  ): Promise<void> {
+    await this.checkBookExistsOrThrow(bookId);
 
     await this.bookFavoriteRepository.save(
-      BookFavoriteCreate.toEntity(bookFavoriteCreate),
+      this.bookFavoriteRepository.create(
+        BookFavoriteCreate.toEntity(bookFavoriteCreate),
+      ),
     );
   }
 

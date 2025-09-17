@@ -7,11 +7,13 @@ import type { Uuid } from 'src/common/type';
 export class BookFavoriteController {
   constructor(private readonly bookFavoriteService: BookFavoriteService) {}
 
-  @Post()
+  @Post(':bookId')
   async create(
+    @Param('bookId') bookId: Uuid,
     @Body() bookFavoriteCreateDto: BookFavoriteCreateDto,
   ): Promise<void> {
     await this.bookFavoriteService.create(
+      bookId,
       BookFavoriteCreateDto.toBookFavoriteCreate(bookFavoriteCreateDto),
     );
   }
