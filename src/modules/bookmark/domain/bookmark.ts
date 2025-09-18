@@ -6,6 +6,8 @@ export class Bookmark {
 
   readonly bookId: Uuid;
 
+  readonly userId: Uuid;
+
   readonly page: number;
 
   readonly createdAt: Date;
@@ -16,6 +18,7 @@ export class Bookmark {
     return {
       id: bookmarkEntity.id,
       bookId: bookmarkEntity.bookId,
+      userId: bookmarkEntity.userId,
       page: bookmarkEntity.page,
       createdAt: bookmarkEntity.createdAt,
       updatedAt: bookmarkEntity.updatedAt,
