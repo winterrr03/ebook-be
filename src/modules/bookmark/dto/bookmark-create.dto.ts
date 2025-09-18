@@ -8,6 +8,10 @@ export class BookmarkCreateDto {
   @IsUUID('4', { message: 'bookId phải là UUID hợp lệ' })
   readonly bookId: Uuid;
 
+  @ApiProperty({ example: '6ff3526c-90dc-4545-9bf4-c1822e2bd19f' })
+  @IsUUID('4', { message: 'bookId phải là UUID hợp lệ' })
+  readonly userId: Uuid;
+
   @ApiProperty({ example: 10 })
   @IsInt({ message: 'page phải là số nguyên' })
   @Min(1, { message: 'page phải lớn hơn hoặc bằng 1' })
@@ -18,6 +22,7 @@ export class BookmarkCreateDto {
   ): BookmarkCreate {
     return {
       bookId: bookmarkCreateDto.bookId,
+      userId: bookmarkCreateDto.userId,
       page: bookmarkCreateDto.page,
     };
   }

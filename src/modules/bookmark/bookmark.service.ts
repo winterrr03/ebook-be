@@ -5,6 +5,7 @@ import { BookEntity } from 'src/modules/book/entity/book.entity';
 import { Bookmark } from 'src/modules/bookmark/domain/bookmark';
 import { BookmarkCreate } from 'src/modules/bookmark/domain/bookmark-create';
 import { BookmarkEntity } from 'src/modules/bookmark/entity/bookmark.entity';
+import { UserEntity } from 'src/modules/user/entity/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -14,6 +15,8 @@ export class BookmarkService {
     private readonly bookmarkRepository: Repository<BookmarkEntity>,
     @InjectRepository(BookEntity)
     private readonly bookRepository: Repository<BookEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async findAll(): Promise<Bookmark[]> {
@@ -21,7 +24,10 @@ export class BookmarkService {
   }
 
   async create(bookmarkCreate: BookmarkCreate): Promise<Bookmark> {
-    await this.checkBookExistsOrThrow(bookmarkCreate.bookId);
+    await Promise.all([
+      this.checkBookExistsOrThrow(bookmarkCreate.bookId),
+      this.checkUserExistsOrThrow(bookmarkCreate.userId),
+    ]);
 
     return Bookmark.fromEntity(
       await this.bookmarkRepository.save(
@@ -42,6 +48,14 @@ export class BookmarkService {
     }
 
     return bookmark;
+  }
+
+  private async checkUserExistsOrThrow(userId: Uuid): Promise<void> {
+    const isExist = await this.userRepository.existsBy({ id: userId });
+
+    if (!isExist) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
   }
 
   private async checkBookExistsOrThrow(bookId: Uuid): Promise<void> {
