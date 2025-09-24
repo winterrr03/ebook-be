@@ -14,7 +14,9 @@ import { BookDetailDto } from 'src/modules/book/dto/book-detail.dto';
 import type { Uuid } from 'src/common/type';
 import { BookCreateDto } from 'src/modules/book/dto/book-create.dto';
 import { BookUpdateDto } from 'src/modules/book/dto/book-update.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Books')
 @Controller('books')
 export class BookController {
   constructor(private readonly bookService: BookService) {}

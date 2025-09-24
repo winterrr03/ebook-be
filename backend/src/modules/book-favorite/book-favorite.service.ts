@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Uuid } from 'src/common/type';
-import { BookFavoriteCreate } from 'src/modules/book-favorite/domain/book-favorite-create';
 import { BookFavoriteEntity } from 'src/modules/book-favorite/entity/book-favorite.entity';
 import { BookEntity } from 'src/modules/book/entity/book.entity';
 import { UserEntity } from 'src/modules/user/entity/user.entity';
@@ -18,49 +17,39 @@ export class BookFavoriteService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(
-    bookId: Uuid,
-    bookFavoriteCreate: BookFavoriteCreate,
-  ): Promise<void> {
-    await Promise.all([
-      this.checkBookExistsOrThrow(bookId),
-      this.checkUserExistsOrThrow(bookFavoriteCreate.userId),
-    ]);
+  async create(bookId: Uuid, user: UserEntity): Promise<void> {
+    await this.checkBookExistsOrThrow(bookId);
 
     await this.bookFavoriteRepository.save(
       this.bookFavoriteRepository.create({
         bookId,
-        ...BookFavoriteCreate.toEntity(bookFavoriteCreate),
+        userId: user.id,
       }),
     );
   }
 
-  async removeByBookId(bookId: Uuid): Promise<void> {
+  async removeByBookId(bookId: Uuid, user: UserEntity): Promise<void> {
     await this.bookFavoriteRepository.remove(
-      await this.findOneByBookIdOrThrow(bookId),
+      await this.findOneByBookIdAndUserIdOrThrow(bookId, user.id),
     );
   }
 
-  private async findOneByBookIdOrThrow(
+  private async findOneByBookIdAndUserIdOrThrow(
     bookId: Uuid,
+    userId: Uuid,
   ): Promise<BookFavoriteEntity> {
     const bookFavorite = await this.bookFavoriteRepository.findOneBy({
       bookId,
+      userId,
     });
 
     if (!bookFavorite) {
-      throw new NotFoundException(`Favorite for bookId ${bookId} not found`);
+      throw new NotFoundException(
+        `Favorite for bookId ${bookId} not found for this user`,
+      );
     }
 
     return bookFavorite;
-  }
-
-  private async checkUserExistsOrThrow(userId: Uuid): Promise<void> {
-    const isExist = await this.userRepository.existsBy({ id: userId });
-
-    if (!isExist) {
-      throw new NotFoundException(`User with id ${userId} not found`);
-    }
   }
 
   private async checkBookExistsOrThrow(bookId: Uuid): Promise<void> {

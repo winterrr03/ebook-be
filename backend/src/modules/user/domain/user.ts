@@ -1,14 +1,19 @@
 import { Uuid } from 'src/common/type';
+import { RoleType } from 'src/guards/role-type';
 import { UserEntity } from 'src/modules/user/entity/user.entity';
 
 export class User {
   readonly id: Uuid;
 
+  readonly keyCloakId: Uuid | null;
+
   readonly email: string;
 
-  readonly firstName: string | null;
+  readonly firstName: string;
 
-  readonly lastName: string | null;
+  readonly lastName: string;
+
+  readonly role: RoleType;
 
   readonly createdAt: Date;
 
@@ -17,9 +22,11 @@ export class User {
   static fromEntity(userEntity: UserEntity): User {
     return {
       id: userEntity.id,
+      keyCloakId: userEntity.keyCloakId,
       email: userEntity.email,
       firstName: userEntity.firstName,
       lastName: userEntity.lastName,
+      role: userEntity.role,
       createdAt: userEntity.createdAt,
       updatedAt: userEntity.updatedAt,
     };

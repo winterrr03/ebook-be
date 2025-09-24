@@ -1,4 +1,5 @@
 import type { Uuid } from 'src/common/type';
+import { RoleType } from 'src/guards/role-type';
 import { BookFavoriteEntity } from 'src/modules/book-favorite/entity/book-favorite.entity';
 import { BookmarkEntity } from 'src/modules/bookmark/entity/bookmark.entity';
 import {
@@ -15,14 +16,24 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: Uuid;
 
+  @Column({ unique: true, nullable: true, type: 'uuid' })
+  keyCloakId: Uuid | null;
+
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true, type: 'varchar' })
-  firstName: string | null;
+  @Column()
+  firstName: string;
 
-  @Column({ nullable: true, type: 'varchar' })
-  lastName: string | null;
+  @Column()
+  lastName: string;
+
+  @Column({
+    type: 'enum',
+    enum: RoleType,
+    default: RoleType.USER,
+  })
+  role: RoleType;
 
   @OneToMany(() => BookFavoriteEntity, (favorite) => favorite.user, {
     cascade: true,

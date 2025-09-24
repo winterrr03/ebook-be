@@ -15,47 +15,46 @@ export class BookmarkService {
     private readonly bookmarkRepository: Repository<BookmarkEntity>,
     @InjectRepository(BookEntity)
     private readonly bookRepository: Repository<BookEntity>,
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async findAll(): Promise<Bookmark[]> {
     return Bookmark.fromEntities(await this.bookmarkRepository.find());
   }
 
-  async create(bookmarkCreate: BookmarkCreate): Promise<Bookmark> {
-    await Promise.all([
-      this.checkBookExistsOrThrow(bookmarkCreate.bookId),
-      this.checkUserExistsOrThrow(bookmarkCreate.userId),
-    ]);
+  async create(
+    bookmarkCreate: BookmarkCreate,
+    user: UserEntity,
+  ): Promise<Bookmark> {
+    await this.checkBookExistsOrThrow(bookmarkCreate.bookId);
 
     return Bookmark.fromEntity(
       await this.bookmarkRepository.save(
-        BookmarkCreate.toEntity(bookmarkCreate),
+        this.bookmarkRepository.create({
+          ...BookmarkCreate.toEntity(bookmarkCreate),
+          userId: user.id,
+        }),
       ),
     );
   }
 
-  async remove(id: Uuid): Promise<void> {
-    await this.bookmarkRepository.remove(await this.findOneOrThrow(id));
+  async remove(id: Uuid, user: UserEntity): Promise<void> {
+    await this.bookmarkRepository.remove(await this.findOneOrThrow(id, user));
   }
 
-  private async findOneOrThrow(id: Uuid): Promise<BookmarkEntity> {
-    const bookmark = await this.bookmarkRepository.findOneBy({ id });
+  private async findOneOrThrow(
+    id: Uuid,
+    user: UserEntity,
+  ): Promise<BookmarkEntity> {
+    const bookmark = await this.bookmarkRepository.findOneBy({
+      id,
+      userId: user.id,
+    });
 
     if (!bookmark) {
       throw new NotFoundException(`Bookmark with id ${id} not found`);
     }
 
     return bookmark;
-  }
-
-  private async checkUserExistsOrThrow(userId: Uuid): Promise<void> {
-    const isExist = await this.userRepository.existsBy({ id: userId });
-
-    if (!isExist) {
-      throw new NotFoundException(`User with id ${userId} not found`);
-    }
   }
 
   private async checkBookExistsOrThrow(bookId: Uuid): Promise<void> {
