@@ -6,7 +6,7 @@ services:
     image: backend
     container_name: backend
     environment:
-      DB_HOST: database
+      DATABASE_HOST: database
       KEYCLOAK_BASE_URL: http://keycloak:8080
     restart: always
     ports:

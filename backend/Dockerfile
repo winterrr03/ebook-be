@@ -24,4 +24,4 @@ EXPOSE $PORT
 COPY backend/start.sh /usr/src/app/start.sh
 RUN chmod +x /usr/src/app/start.sh
 
-CMD ["/usr/src/app/start.sh"]
+CMD ["bash", "/usr/src/app/start.sh"]

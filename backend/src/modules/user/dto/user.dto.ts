@@ -10,10 +10,13 @@ export class UserDto {
   readonly email: string;
 
   @ApiProperty({ example: 'John' })
-  readonly firstName: string | null;
+  readonly firstName: string;
 
   @ApiProperty({ example: 'Doe' })
-  readonly lastName: string | null;
+  readonly lastName: string;
+
+  @ApiProperty({ example: 'John Doe' })
+  readonly fullName: string;
 
   static fromUser(user: User): UserDto {
     return {
@@ -21,6 +24,7 @@ export class UserDto {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      fullName: `${user.firstName} ${user.lastName}`,
     };
   }
 

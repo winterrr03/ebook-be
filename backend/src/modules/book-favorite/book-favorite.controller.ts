@@ -1,25 +1,31 @@
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import { Controller, Delete, Param, Post } from '@nestjs/common';
 import { BookFavoriteService } from './book-favorite.service';
 import type { Uuid } from 'src/common/type';
-import { BookFavoriteCreateDto } from 'src/modules/book-favorite/dto/book-favorite-create.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { AuthUser } from 'src/decorator/auth-user.decorator';
+import { RequireLoggedIn } from 'src/guards/role-container';
+import { UserEntity } from 'src/modules/user/entity/user.entity';
 
+@ApiTags('BookFavorites')
 @Controller('book-favorites')
 export class BookFavoriteController {
   constructor(private readonly bookFavoriteService: BookFavoriteService) {}
 
   @Post(':bookId')
+  @RequireLoggedIn()
   async create(
+    @AuthUser() user: UserEntity,
     @Param('bookId') bookId: Uuid,
-    @Body() bookFavoriteCreateDto: BookFavoriteCreateDto,
   ): Promise<void> {
-    await this.bookFavoriteService.create(
-      bookId,
-      BookFavoriteCreateDto.toBookFavoriteCreate(bookFavoriteCreateDto),
-    );
+    await this.bookFavoriteService.create(bookId, user);
   }
 
   @Delete(':bookId')
-  async remove(@Param('bookId') bookId: Uuid): Promise<void> {
-    await this.bookFavoriteService.removeByBookId(bookId);
+  @RequireLoggedIn()
+  async remove(
+    @AuthUser() user: UserEntity,
+    @Param('bookId') bookId: Uuid,
+  ): Promise<void> {
+    await this.bookFavoriteService.removeByBookId(bookId, user);
   }
 }
